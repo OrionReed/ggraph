@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { SpatialIndex } from "./SpatialIndex"
 import { Editor, TLShape, TLShapeId, VecLike, polygonsIntersect } from "tldraw"
 

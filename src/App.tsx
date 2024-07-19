@@ -5,7 +5,7 @@ import { AgentButton } from "./components/AgentButton";
 import { SocialShapeUtil } from "./SocialShapeUtil";
 import { SocialShapeTool } from "./SocialShapeTool";
 import { CustomToolbar, overrides } from "./ui";
-import { getDocumentMeta, getUserId, getUsersInRoom, setDocumentMeta } from "./storeUtils";
+// import { getDocumentMeta, getUserId, getUsersInRoom, setDocumentMeta } from "./storeUtils";
 import { registerDefaultPropagators } from "./propagators/ScopedPropagators";
 
 const shapeUtils = [SocialShapeUtil];

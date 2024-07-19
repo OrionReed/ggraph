@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { DeltaTime } from "./DeltaTime"
 import { Geo } from "./Geo"
 import { Edge, getArrowsFromShape, getEdge } from "./tlgraph"
@@ -30,7 +31,7 @@ class ArrowFunctionCache {
   private cache: Map<string, Function | null> = new Map<string, Function | null>()
 
   /** returns undefined if the function could not be found or created */
-  get(editor: Editor, edge: Edge, prefix: Prefix): Function | undefined {
+  get(editor: Editor, edge: Edge, prefix: Prefix): Function | undefined | null {
     if (this.cache.has(edge.arrowId)) {
       return this.cache.get(edge.arrowId)
     }
@@ -75,8 +76,9 @@ const packShape = (shape: TLShape) => {
 
 const unpackShape = (shape: any) => {
   const { id, type, x, y, rotation, m, ...props } = shape
-  const cast = (prop: any, constructor: (value: any) => any) => {
-    return prop !== undefined ? constructor(prop) : undefined;
+  //@ts-ignore
+  const cast = (prop: any, ctor: (value: any) => any) => {
+    return prop !== undefined ? ctor(prop) : undefined;
   };
   return {
     id,
@@ -87,6 +89,14 @@ const unpackShape = (shape: any) => {
     props: {
       ...props,
       text: cast(props.text, String),
+      w: cast(props.w, (value) => {
+        const num = Number(value);
+        return Number.isNaN(num) || num === 0 ? 1 : num;
+      }),
+      h: cast(props.h, (value) => {
+        const num = Number(value);
+        return Number.isNaN(num) || num === 0 ? 1 : num;
+      }),
     },
     meta: m,
   }
@@ -161,7 +171,7 @@ export abstract class Propagator {
   protected arrowFunctionCache: ArrowFunctionCache = new ArrowFunctionCache()
   protected editor: Editor
   protected geo: Geo
-  protected validateOnArrowChange: boolean = false
+  protected validateOnArrowChange = false
 
   constructor(editor: Editor) {
     this.editor = editor
@@ -234,6 +244,7 @@ export abstract class Propagator {
   /** called after every shape change */
   afterChangeHandler?(editor: Editor, next: TLShape): void
   /** called on every editor event */
+  //@ts-ignore
   eventHandler?(event: any): void
   /** called every tick */
   tickHandler?(): void

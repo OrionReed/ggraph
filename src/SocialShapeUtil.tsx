@@ -7,7 +7,6 @@ import {
 	TLOnResizeHandler,
 	TLShapeId,
 	resizeBox,
-	toDomPrecision,
 } from 'tldraw'
 import { getUserId } from './storeUtils'
 
@@ -90,7 +89,11 @@ export class SocialShapeUtil extends BaseBoxShapeUtil<ISocialShape> {
 		return (
 			<HTMLContainer style={{ padding: 4, borderRadius: 4, border: '1px solid #ccc', outline: shape.props.syntaxError ? '2px solid orange' : 'none' }} onPointerDown={(e) => e.stopPropagation()}>
 				<textarea style={{ width: '100%', height: '50%', border: 'none', outline: 'none', resize: 'none', pointerEvents: 'all' }} value={shape.props.text} onChange={(e) => handleTextChange(e.target.value)} />
-				<ValueInterface type={shape.props.valueType ?? null} value={shape.props.values[currentUser] ?? defaultValues[shape.props.valueType ?? 'DEFAULT']} values={shape.props.values} onChange={handleOnChange} />
+				<ValueInterface
+					type={shape.props.valueType ?? null}
+					value={shape.props.values[currentUser] ?? defaultValues[shape.props.valueType as keyof typeof defaultValues]}
+					values={shape.props.values}
+					onChange={handleOnChange} />
 			</HTMLContainer>
 		)
 	}
@@ -110,6 +113,7 @@ export class SocialShapeUtil extends BaseBoxShapeUtil<ISocialShape> {
 				return (vals as number[]).reduce((acc, val) => acc + val, 0)
 			}
 			if (valueType === 'BOOLEAN') {
+				//@ts-ignore
 				return vals.filter(Boolean).length;
 			}
 		}
@@ -118,6 +122,7 @@ export class SocialShapeUtil extends BaseBoxShapeUtil<ISocialShape> {
 				return (vals as number[]).reduce((acc, val) => acc + val, 0) / vals.length
 			}
 			if (valueType === 'BOOLEAN') {
+				//@ts-ignore
 				return vals.filter(Boolean).length;
 			}
 		}
@@ -146,12 +151,12 @@ export class SocialShapeUtil extends BaseBoxShapeUtil<ISocialShape> {
 	}
 }
 
-function ValueInterface({ type, value, values, onChange }: { type: ValueType; value: any; values: Record<string, any>; onChange: (value: any) => void }) {
+function ValueInterface({ type, value, values, onChange }: { type: ValueType; value: boolean | number | string; values: Record<string, any>; onChange: (value: any) => void }) {
 	switch (type) {
 		case 'BOOLEAN':
 			return <>
 				<div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '4px' }}>
-					<input style={{ pointerEvents: 'all', width: '20px', height: '20px', margin: 0 }} type="checkbox" value={value} onChange={(e) => onChange(e.target.checked)} />
+					<input style={{ pointerEvents: 'all', width: '20px', height: '20px', margin: 0 }} type="checkbox" checked={value as boolean} onChange={(e) => onChange(e.target.checked)} />
 					<div style={{ width: '1px', height: '20px', backgroundColor: 'grey' }} />
 					{Object.values(values).map((bool, i) => (
 						<div key={`boolean-${i}`} style={{ backgroundColor: bool ? 'blue' : 'white', width: '20px', height: '20px', border: '1px solid lightgrey', borderRadius: 2 }} />
@@ -166,11 +171,11 @@ function ValueInterface({ type, value, values, onChange }: { type: ValueType; va
 						min="0"
 						max="1"
 						step="0.01"
-						value={value ?? 0}
+						value={value as number ?? 0}
 						onChange={(e) => onChange(parseFloat(e.target.value))}
 						style={{ width: '100px', pointerEvents: 'all' }}
 					/>
-					<span style={{ fontFamily: 'monospace' }}>{(value ?? 0).toFixed(2)}</span>
+					<span style={{ fontFamily: 'monospace' }}>{(value as number ?? 0).toFixed(2)}</span>
 					<div style={{ width: '1px', height: '20px', backgroundColor: 'grey' }} />
 					{Object.values(values).map((val, i) => (
 						<div

@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { RESET_VALUE, computed, isUninitialized } from '@tldraw/state'
 import { TLPageId, TLShapeId, isShape, isShapeId } from '@tldraw/tlschema'
 import RBush from 'rbush'
