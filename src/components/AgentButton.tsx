@@ -40,6 +40,18 @@ export function AgentButton() {
 		setBoundToAgent(name)
 	}
 
+	const handleAdd = (e: React.MouseEvent<HTMLDivElement>) => {
+		e.stopPropagation()
+		const name = randomName()
+		const color = randomHexColor()
+		setAgents([...agents, { name, boundClientIds: [], color }])
+	}
+
+	const handleRename = (name: string, newName: string) => {
+		setBoundToAgent(newName)
+		setAgents(agents.map(agent => agent.name === name ? { ...agent, name: newName } : agent))
+	}
+
 	return (
 		<div>
 			<Dropdown
@@ -56,6 +68,8 @@ export function AgentButton() {
 			>
 				{you && <AgentItem
 					agent={you}
+					canRename
+					onRename={(newName) => handleRename(you.name, newName)}
 					onColorChange={(color) => handleColorChange(you.name, color)}
 					onDelete={() => handleDelete(you.name)}
 					onBind={() => handleBind(you.name)}
@@ -75,25 +89,57 @@ export function AgentButton() {
 					<AgentItem
 						key={agent.name}
 						agent={agent}
-						isUnbound
+						isReadonly
 						onColorChange={(color) => handleColorChange(agent.name, color)}
 						onDelete={() => handleDelete(agent.name)}
 						onBind={() => handleBind(agent.name)}
 					/>
 				))}
+				<Separator />
+				<AddAgentButton onAdd={(e) => handleAdd(e)} />
 			</Dropdown>
 		</div>
 	)
 }
 
-function AgentItem({ agent, isUnbound, onColorChange, onDelete, onBind }: { agent: Agent, isUnbound?: boolean, onColorChange: (color: string) => void, onDelete: () => void, onBind: () => void }) {
+function AgentItem({ agent, isReadonly, canRename, onColorChange, onRename, onDelete, onBind }: { agent: Agent, isReadonly?: boolean, canRename?: boolean, onColorChange: (color: string) => void, onRename?: (name: string) => void, onDelete: () => void, onBind: () => void }) {
 	return <DropdownItem>
 		<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
 			<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-				{!isUnbound && <ColorPicker color={agent.color} onChange={onColorChange} />}
-				<span onClick={onBind} style={{ color: isUnbound ? 'grey' : 'black' }}>{agent.name}</span>
+				{!isReadonly && <ColorPicker color={agent.color} onChange={onColorChange} />}
+				{canRename ? (
+					<input
+						type="text"
+						value={agent.name}
+						onClick={(e) => e.stopPropagation()}
+						onChange={(e) => {
+							e.preventDefault()
+							e.stopPropagation()
+							onRename?.(e.target.value)
+						}}
+						// onKeyDown={(e) => {
+						// 	// e.preventDefault()
+						// 	e.stopPropagation()
+						// }}
+						style={{ color: isReadonly ? 'grey' : 'black' }}
+					/>
+				) : (
+					<span onClick={onBind} style={{ color: isReadonly ? 'grey' : 'black' }}>{agent.name}</span>
+				)}
 			</div>
 			<DeleteButton onClick={onDelete} />
+		</div>
+	</DropdownItem>
+}
+function AddAgentButton({ onAdd }: { onAdd: (e: React.MouseEvent<HTMLDivElement>) => void }) {
+	return <DropdownItem>
+		<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+			<div onClick={onAdd} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+				<span>Add Name</span>
+				<span style={{
+					marginLeft: 'auto', fontSize: '20px',
+				}}>+</span>
+			</div>
 		</div>
 	</DropdownItem>
 }
@@ -143,7 +189,10 @@ function DeleteButton({ onClick }: { onClick: () => void }) {
 	return (
 		<button
 			type="button"
-			onClick={onClick}
+			onClick={(e) => {
+				e.stopPropagation()
+				onClick()
+			}}
 			style={{
 				background: 'none',
 				border: 'none',
@@ -155,10 +204,20 @@ function DeleteButton({ onClick }: { onClick: () => void }) {
 				borderRadius: '50%',
 				transition: 'background-color 0.2s',
 			}}
-			onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f0f0f0'}
+			onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#e3e3e3'}
 			onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
 		>
 			×
 		</button>
 	);
+}
+
+function randomName(): string {
+	const firstNames = ['Boba', 'Zap', 'Fizz', 'Glorp', 'Squish', 'Blip', 'Floof', 'Ziggy', 'Quark', 'Noodle', 'AI'];
+	const lastNames = ['Bubbles', 'Zoomers', 'Wiggles', 'Snazzle', 'Boop', 'Fizzle', 'Wobble', 'Giggle', 'Squeak', 'Noodle', 'Palace'];
+	return `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]}`
+}
+
+function randomHexColor(): string {
+	return `#${Math.floor(Math.random() * 16777215).toString(16)}`
 }

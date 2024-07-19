@@ -1,5 +1,8 @@
 high level:
 - agent bindings
+  - create UI
+  - sync user prefs with bindings
+  - sync in doc meta
 - agent selectors
 - basic "social" shape
 - graph projections

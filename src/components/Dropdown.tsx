@@ -95,6 +95,8 @@ export function DropdownItem({
 					border: 'none',
 					outline: 'none',
 				}}
+				onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f0f0f0'}
+				onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
 			// onClick={(e) => {
 			// 	e.preventDefault()
 			// 	action?.()
