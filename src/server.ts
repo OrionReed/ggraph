@@ -7,7 +7,7 @@ export default {
 
 		return await onConnect(conn, room, {
 			// experimental: persist the document to partykit's room storage
-			persist: true,
+			// persist: true,
 		});
 	},
 };
