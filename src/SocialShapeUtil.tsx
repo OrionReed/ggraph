@@ -10,7 +10,7 @@ import {
 } from 'tldraw'
 import { getUserId } from './storeUtils'
 
-export type ValueType = "SCALAR" | "BOOLEAN" | "NONE"
+export type ValueType = "SCALAR" | "BOOLEAN" | "STRING" | "NONE"
 
 export type ISocialShape = TLBaseShape<
 	"social",
@@ -76,6 +76,8 @@ export class SocialShapeUtil extends BaseBoxShapeUtil<ISocialShape> {
 				valueType = 'SCALAR'
 			} else if (text.includes('BOOLEAN')) {
 				valueType = 'BOOLEAN'
+			} else if (text.includes('STRING')) {
+				valueType = 'STRING'
 			}
 
 			if (valueType !== shape.props.valueType) {
@@ -88,7 +90,7 @@ export class SocialShapeUtil extends BaseBoxShapeUtil<ISocialShape> {
 
 		return (
 			<HTMLContainer style={{ padding: 4, borderRadius: 4, border: '1px solid #ccc', outline: shape.props.syntaxError ? '2px solid orange' : 'none' }} onPointerDown={(e) => e.stopPropagation()}>
-				<textarea style={{ width: '100%', height: '50%', border: 'none', outline: 'none', resize: 'none', pointerEvents: 'all' }} value={shape.props.text} onChange={(e) => handleTextChange(e.target.value)} />
+				<textarea style={{ width: '100%', height: '50%', border: '1px solid lightgrey', resize: 'none', pointerEvents: 'all' }} value={shape.props.text} onChange={(e) => handleTextChange(e.target.value)} />
 				<ValueInterface
 					type={shape.props.valueType ?? null}
 					value={shape.props.values[currentUser] ?? defaultValues[shape.props.valueType as keyof typeof defaultValues]}
@@ -163,6 +165,38 @@ function ValueInterface({ type, value, values, onChange }: { type: ValueType; va
 					))}
 				</div>
 			</>
+		case 'STRING':
+			return (
+				<div style={{ display: 'flex', flexDirection: 'column', width: '100%', gap: '4px' }}>
+					<textarea
+						style={{
+							pointerEvents: 'all',
+							width: '100%',
+							minHeight: '60px',
+							resize: 'vertical',
+							padding: '4px',
+							boxSizing: 'border-box',
+						}}
+						value={value as string}
+						onChange={(e) => onChange(e.target.value)}
+					/>
+					<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+						<div style={{ display: 'flex', gap: '2px' }}>
+							{Object.values(values).filter(value => value !== '').map((_, i) => (
+								<div
+									key={`string-${i}`}
+									style={{
+										width: '8px',
+										height: '8px',
+										backgroundColor: 'blue',
+										borderRadius: '50%',
+									}}
+								/>
+							))}
+						</div>
+					</div>
+				</div>
+			);
 		case 'SCALAR':
 			return (
 				<div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '4px' }}>
