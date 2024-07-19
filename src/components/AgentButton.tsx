@@ -16,10 +16,12 @@ export function AgentButton() {
 		{ name: 'Bark', boundClientIds: ['312342', '312343'], color: '#32d96c' },
 		{ name: 'Meow', boundClientIds: [], color: '#3db9eb' },
 	])
-	const [boundToAgent, setBoundToAgent] = useState<string | null>('Meow')
+	const [boundToAgent, setBoundToAgent] = useState<string | null>('Bark')
 
+	const sansYou = agents.filter((agent: Agent) => agent.name !== boundToAgent)
+	const boundAgents = sansYou.filter((agent: Agent) => agent.boundClientIds.length > 0)
+	const unboundAgents = sansYou.filter((agent: Agent) => agent.boundClientIds.length === 0)
 	const you = agents.find((agent: Agent) => agent.name === boundToAgent)
-	const agentsWithoutYou = agents.filter((agent: Agent) => agent.name !== boundToAgent)
 
 	const handleColorChange = (name: string, color: string) => {
 		setAgents(agents.map(agent =>
@@ -59,10 +61,21 @@ export function AgentButton() {
 					onBind={() => handleBind(you.name)}
 				/>}
 				<Separator />
-				{agentsWithoutYou.map((agent: Agent) => (
+				{boundAgents.map((agent: Agent) => (
 					<AgentItem
 						key={agent.name}
 						agent={agent}
+						onColorChange={(color) => handleColorChange(agent.name, color)}
+						onDelete={() => handleDelete(agent.name)}
+						onBind={() => handleBind(agent.name)}
+					/>
+				))}
+				<Separator />
+				{unboundAgents.map((agent: Agent) => (
+					<AgentItem
+						key={agent.name}
+						agent={agent}
+						isUnbound
 						onColorChange={(color) => handleColorChange(agent.name, color)}
 						onDelete={() => handleDelete(agent.name)}
 						onBind={() => handleBind(agent.name)}
@@ -73,12 +86,12 @@ export function AgentButton() {
 	)
 }
 
-function AgentItem({ agent, onColorChange, onDelete, onBind }: { agent: Agent, onColorChange: (color: string) => void, onDelete: () => void, onBind: () => void }) {
+function AgentItem({ agent, isUnbound, onColorChange, onDelete, onBind }: { agent: Agent, isUnbound?: boolean, onColorChange: (color: string) => void, onDelete: () => void, onBind: () => void }) {
 	return <DropdownItem>
 		<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
 			<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-				<ColorPicker color={agent.color} onChange={onColorChange} />
-				<span onClick={onBind}>{agent.name}</span>
+				{!isUnbound && <ColorPicker color={agent.color} onChange={onColorChange} />}
+				<span onClick={onBind} style={{ color: isUnbound ? 'grey' : 'black' }}>{agent.name}</span>
 			</div>
 			<DeleteButton onClick={onDelete} />
 		</div>
