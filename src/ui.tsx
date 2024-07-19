@@ -22,6 +22,16 @@ export const overrides: TLUiOverrides = {
 					editor.setCurrentTool("social")
 				},
 			},
+			prompt: {
+				id: "prompt",
+				name: "Prompt",
+				icon: "code",
+				kbd: "p",
+				label: "Prompt",
+				onSelect: () => {
+					editor.setCurrentTool("prompt")
+				},
+			},
 		}
 	},
 }

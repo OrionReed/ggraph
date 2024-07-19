@@ -7,9 +7,11 @@ import { SocialShapeTool } from "./SocialShapeTool";
 import { CustomToolbar, overrides } from "./ui";
 // import { getDocumentMeta, getUserId, getUsersInRoom, setDocumentMeta } from "./storeUtils";
 import { registerDefaultPropagators } from "./propagators/ScopedPropagators";
+import { PromptShape } from "./PromptShape";
+import { PromptShapeTool } from "./PromptTool";
 
-const shapeUtils = [SocialShapeUtil];
-const tools = [SocialShapeTool];
+const shapeUtils = [SocialShapeUtil, PromptShape];
+const tools = [SocialShapeTool, PromptShapeTool];
 
 
 const HOST_URL = import.meta.env.DEV
