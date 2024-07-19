@@ -18,7 +18,8 @@ agents: {
 
 social shape props:
 ```json
-function: string // e.g. "@all sum(SCALAR)"
+text: string // e.g. "@all sum(SCALAR)"
 selector: string // e.g. "@all"
 valueType: string // e.g. "SCALAR"
+values: Record<string, any>
 ```

@@ -5,6 +5,7 @@ import { AgentButton } from "./components/AgentButton";
 import { SocialShapeUtil } from "./SocialShapeUtil";
 import { SocialShapeTool } from "./SocialShapeTool";
 import { CustomToolbar, overrides } from "./ui";
+import { getDocumentMeta, getUserId, getUsersInRoom, setDocumentMeta } from "./storeUtils";
 
 const shapeUtils = [SocialShapeUtil];
 const tools = [SocialShapeTool];
@@ -34,6 +35,18 @@ export default function Canvas() {
 				onMount={(editor) => {
 					//@ts-ignore
 					editor.getStateDescendant('select.idle').handleDoubleClickOnCanvas = () => void null;
+					console.log(editor.store.allRecords())
+					const userId = getUserId(editor)
+					setDocumentMeta(editor, {
+						[userId]: 123
+					})
+					// console.log(getDocumentMeta(editor))
+					// removeDocumentMeta(editor, 'test')
+					setTimeout(() => {
+						console.log(getDocumentMeta(editor))
+						console.log(getUsersInRoom(editor))
+					}, 2000);
+
 				}}
 				components={{
 					SharePanel: AgentButton,
