@@ -46,6 +46,7 @@ export function useYjsStore({
 		const yDoc = new Y.Doc({ gc: true });
 		const yArr = yDoc.getArray<{ key: string; val: TLRecord }>(`tl_${roomId}`);
 		const yStore = new YKeyValue(yArr);
+		// const meta = yDoc.getMap<SerializedSchema>('meta')
 
 		return {
 			yDoc,
@@ -130,6 +131,8 @@ export function useYjsStore({
 			unsubs.push(() => yStore.off("change", handleChange));
 
 			/* -------------------- Awareness ------------------- */
+
+			// setUserPreferences({ id: yClientId })
 
 			const userPreferences = computed<{
 				id: string;

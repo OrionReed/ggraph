@@ -5,6 +5,7 @@ import "tldraw/tldraw.css";
 // import { DevUi } from "./DevUI";
 // import { uiOverrides } from "./ui-overrides";
 import { useYjsStore } from "./useYjsStore";
+import { AgentButton } from "./components/AgentButton";
 
 // const customShapeUtils = [DevShapeUtil];
 // const customTools = [DevShapeTool];
@@ -28,7 +29,7 @@ export default function Canvas() {
 				autoFocus
 				store={store}
 				components={{
-					SharePanel: NameEditor,
+					SharePanel: AgentButton,
 				}}
 			// shapeUtils={customShapeUtils}
 			// tools={customTools}
