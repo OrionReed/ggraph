@@ -90,7 +90,7 @@ export class SocialShapeUtil extends BaseBoxShapeUtil<ISocialShape> {
 
 		return (
 			<HTMLContainer style={{ padding: 4, borderRadius: 4, border: '1px solid #ccc', outline: shape.props.syntaxError ? '2px solid orange' : 'none' }} onPointerDown={(e) => e.stopPropagation()}>
-				<textarea style={{ width: '100%', height: '50%', border: '1px solid lightgrey', resize: 'none', pointerEvents: 'all' }} value={shape.props.text} onChange={(e) => handleTextChange(e.target.value)} />
+				<textarea style={{ width: '100%', height: '60%', border: '1px solid lightgrey', resize: 'none', pointerEvents: 'all' }} value={shape.props.text} onChange={(e) => handleTextChange(e.target.value)} />
 				<ValueInterface
 					type={shape.props.valueType ?? null}
 					value={shape.props.values[currentUser] ?? defaultValues[shape.props.valueType as keyof typeof defaultValues]}
@@ -103,13 +103,21 @@ export class SocialShapeUtil extends BaseBoxShapeUtil<ISocialShape> {
 	private updateValue(shapeId: TLShapeId) {
 		const shape = this.editor.getShape(shapeId) as ISocialShape
 		const valueType = shape.props.valueType
-		console.log("SHAPE", shape)
+		// console.log("SHAPE", shape)
 		const vals = Array.from(Object.values(shape.props.values))
-		console.log("VALS", vals)
-		// const functionBody = `return (${shape.props.text.replace(valueType, vals)})`
+		// console.log("VALS", vals)
+
+		// Check for "sum" or "average" followed by whitespace or end of string
+		const invalidFunctionUsage = /\b(sum|average)(\s|$)/.test(shape.props.text)
+
+		if (invalidFunctionUsage) {
+			this.updateProps(shape, { syntaxError: true })
+			return
+		}
+
 		const functionBody = `return ${shape.props.text.replace(valueType, 'VALUES')};`
 
-		console.log("FUNCTION BODY", functionBody)
+		// console.log("FUNCTION BODY", functionBody)
 		const sum = (vals: number[] | boolean[]) => {
 			if (valueType === 'SCALAR') {
 				return (vals as number[]).reduce((acc, val) => acc + val, 0)

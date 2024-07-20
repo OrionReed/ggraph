@@ -20,7 +20,7 @@ type IPrompt = TLBaseShape<
 		w: number
 		h: number
 		prompt: string
-		output: string
+		value: string
 		agentBinding: string | null
 	}
 >
@@ -37,7 +37,7 @@ export class PromptShape extends BaseBoxShapeUtil<IPrompt> {
 			w: 300,
 			h: 50,
 			prompt: "",
-			output: "",
+			value: "",
 			agentBinding: null,
 		}
 	}
@@ -84,12 +84,15 @@ export class PromptShape extends BaseBoxShapeUtil<IPrompt> {
 				this.editor.updateShape<IPrompt>({
 					id: shape.id,
 					type: "prompt",
-					props: { output: partial, agentBinding: done ? null : 'someone' },
+					props: { value: partial, agentBinding: done ? null : 'someone' },
 				})
 			})
 		}
 
 		const handlePrompt = () => {
+			if (shape.props.agentBinding) {
+				return
+			}
 			let processedPrompt = shape.props.prompt;
 			for (const [key, sourceShape] of Object.entries(inputMap)) {
 				const pattern = `{${key}}`;
