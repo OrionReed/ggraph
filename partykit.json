@@ -1,5 +1,5 @@
 {
-  "name": "ggraph",
+  "name": "palace",
   "main": "src/server.ts",
   "serve": {
     "path": "dist"

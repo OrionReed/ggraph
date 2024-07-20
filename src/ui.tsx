@@ -25,7 +25,7 @@ export const overrides: TLUiOverrides = {
 			prompt: {
 				id: "prompt",
 				name: "Prompt",
-				icon: "code",
+				icon: "fill-solid",
 				kbd: "p",
 				label: "Prompt",
 				onSelect: () => {
@@ -39,9 +39,11 @@ export const overrides: TLUiOverrides = {
 export const CustomToolbar = (props: DefaultToolbarProps) => {
 	const tools = useTools()
 	const isSocialSelected = useIsToolSelected(tools.social)
+	const isPromptSelected = useIsToolSelected(tools.prompt)
 	return (
 		<DefaultToolbar {...props}>
 			<TldrawUiMenuItem {...tools.social} isSelected={isSocialSelected} />
+			<TldrawUiMenuItem {...tools.prompt} isSelected={isPromptSelected} />
 			<DefaultToolbarContent />
 		</DefaultToolbar>
 	)

@@ -1,14 +1,13 @@
 import "tldraw/tldraw.css";
-import { Tldraw } from "tldraw";
+import { Tldraw, track, useEditor } from "tldraw";
 import { useYjsStore } from "./useYjsStore";
-import { AgentButton } from "./components/AgentButton";
 import { SocialShapeUtil } from "./SocialShapeUtil";
 import { SocialShapeTool } from "./SocialShapeTool";
 import { CustomToolbar, overrides } from "./ui";
-// import { getDocumentMeta, getUserId, getUsersInRoom, setDocumentMeta } from "./storeUtils";
 import { registerDefaultPropagators } from "./propagators/ScopedPropagators";
 import { PromptShape } from "./PromptShape";
 import { PromptShapeTool } from "./PromptTool";
+import { CustomMainMenu } from "./CustomMainMenu";
 
 const shapeUtils = [SocialShapeUtil, PromptShape];
 const tools = [SocialShapeTool, PromptShapeTool];
@@ -41,74 +40,87 @@ export default function Canvas() {
 
 					registerDefaultPropagators(editor)
 
-					// const userId = getUserId(editor)
-					// setDocumentMeta(editor, {
-					// 	[userId]: 123
-					// })
-					// // console.log(getDocumentMeta(editor))
-					// // removeDocumentMeta(editor, 'test')
-					// setTimeout(() => {
-					// 	console.log(getDocumentMeta(editor))
-					// 	console.log(getUsersInRoom(editor))
-					// }, 2000);
-
 				}}
 				components={{
-					SharePanel: AgentButton,
+					SharePanel: NameEditor,
 					Toolbar: CustomToolbar,
+					MainMenu: CustomMainMenu,
 				}}
 			/>
 		</div>
 	);
 }
 
-// const NameEditor = track(() => {
-// 	const editor = useEditor();
+const NameEditor = track(() => {
+	const editor = useEditor();
+	const { color, name } = editor.user.getUserPreferences();
 
+	function randomName(): string {
+		const firstNames = ['Boba', 'Zap', 'Fizz', 'Glorp', 'Squish', 'Blip', 'Floof', 'Ziggy', 'Quark', 'Noodle', 'AI'];
+		const lastNames = ['Bubbles', 'Zoomers', 'Wiggles', 'Snazzle', 'Boop', 'Fizzle', 'Wobble', 'Giggle', 'Squeak', 'Noodle', 'Palace'];
+		return `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]}`
+	}
 
-// 	const { color, name } = editor.user.getUserPreferences();
+	function randomHexColor(): string {
+		return `#${Math.floor(Math.random() * 16777215).toString(16)}`
+	}
 
-// 	return (
-// 		<div
-// 			style={{
-// 				// TODO: style this properly and consistently with tldraw
-// 				pointerEvents: "all",
-// 				display: "flex",
-// 				width: "148px",
-// 				margin: "4px 8px",
-// 				border: "none",
-// 			}}
-// 		>
-// 			<input
-// 				style={{
-// 					borderRadius: "9px 0px 0px 9px",
-// 					border: "none",
-// 					backgroundColor: "white",
-// 					boxShadow: "0px 0px 4px rgba(0, 0, 0, 0.25)",
-// 				}}
-// 				type="color"
-// 				value={color}
-// 				onChange={(e) => {
-// 					editor.user.updateUserPreferences({
-// 						color: e.currentTarget.value,
-// 					});
-// 				}}
-// 			/>
-// 			<input
-// 				style={{
-// 					width: "100%",
-// 					borderRadius: "0px 9px 9px 0px",
-// 					border: "none",
-// 					backgroundColor: "white",
-// 					boxShadow: "0px 0px 4px rgba(0, 0, 0, 0.25)",
-// 				}}
-// 				value={name}
-// 				onChange={(e) => {
-// 					editor.user.updateUserPreferences({
-// 						name: e.currentTarget.value,
-// 					});
-// 				}}
-// 			/>
-// 		</div>
-// 	);
-// });
+	const userPrefs = editor.user.getUserPreferences()
+
+	if (userPrefs.name === "New User") {
+		editor.user.updateUserPreferences({
+			name: randomName(),
+			color: randomHexColor()
+		})
+	}
+
+	return (
+		<div
+			style={{
+				// TODO: style this properly and consistently with tldraw
+				pointerEvents: "all",
+				display: "flex",
+				width: "160px",
+				margin: "4px 8px",
+				border: "none",
+			}}
+		>
+			<input
+				style={{
+					borderRadius: "9px 0px 0px 9px",
+					width: '30px',
+					height: '30px',
+					border: "none",
+					backgroundColor: "white",
+					boxShadow: "0px 0px 4px rgba(0, 0, 0, 0.25)",
+					appearance: "none",
+					WebkitAppearance: "none",
+					cursor: "pointer",
+					overflow: "hidden",
+				}}
+				type="color"
+				value={color}
+				onChange={(e) => {
+					editor.user.updateUserPreferences({
+						color: e.currentTarget.value,
+					});
+				}}
+			/>
+			<input
+				style={{
+					width: "100%",
+					borderRadius: "0px 9px 9px 0px",
+					border: "none",
+					backgroundColor: "white",
+					boxShadow: "0px 0px 4px rgba(0, 0, 0, 0.25)",
+				}}
+				value={name}
+				onChange={(e) => {
+					editor.user.updateUserPreferences({
+						name: e.currentTarget.value,
+					});
+				}}
+			/>
+		</div>
+	);
+});
