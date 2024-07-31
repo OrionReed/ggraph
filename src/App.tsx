@@ -19,7 +19,7 @@ const HOST_URL = import.meta.env.DEV
 
 export default function Canvas() {
 	const roomId =
-		new URLSearchParams(window.location.search).get("room") || "2024";
+		new URLSearchParams(window.location.search).get("room") || "2024-2";
 	const store = useYjsStore({
 		roomId: roomId,
 		hostUrl: HOST_URL,
