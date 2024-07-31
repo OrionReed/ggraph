@@ -1,16 +1,19 @@
 import {
 	BaseBoxShapeUtil,
+	Editor,
 	Geometry2d,
 	HTMLContainer,
 	Rectangle2d,
 	TLBaseShape,
 	TLOnResizeHandler,
+	TLShape,
 	TLShapeId,
 	resizeBox,
 } from 'tldraw'
 import { getUserId } from './storeUtils'
+import { getEdge } from './propagators/tlgraph'
 
-export type ValueType = "SCALAR" | "BOOLEAN" | "STRING" | "NONE"
+export type ValueType = "SCALAR" | "BOOLEAN" | "STRING" | "RANK" | "NONE"
 
 export type ISocialShape = TLBaseShape<
 	"social",
@@ -78,6 +81,8 @@ export class SocialShapeUtil extends BaseBoxShapeUtil<ISocialShape> {
 				valueType = 'BOOLEAN'
 			} else if (text.includes('STRING')) {
 				valueType = 'STRING'
+			} else if (text.includes('RANK')) {
+				valueType = 'RANK'
 			}
 
 			if (valueType !== shape.props.valueType) {
@@ -103,21 +108,10 @@ export class SocialShapeUtil extends BaseBoxShapeUtil<ISocialShape> {
 	private updateValue(shapeId: TLShapeId) {
 		const shape = this.editor.getShape(shapeId) as ISocialShape
 		const valueType = shape.props.valueType
-		// console.log("SHAPE", shape)
 		const vals = Array.from(Object.values(shape.props.values))
-		// console.log("VALS", vals)
-
-		// Check for "sum" or "average" followed by whitespace or end of string
-		// const invalidFunctionUsage = /\b(sum|average)(\s|$)/.test(shape.props.text)
-
-		// if (invalidFunctionUsage) {
-		// 	this.updateProps(shape, { syntaxError: true })
-		// 	return
-		// }
 
 		const functionBody = `return ${shape.props.text.replace(valueType, 'VALUES')};`
 
-		// console.log("FUNCTION BODY", functionBody)
 		const sum = (vals: number[] | boolean[]) => {
 			if (valueType === 'SCALAR') {
 				return (vals as number[]).reduce((acc, val) => acc + val, 0)
@@ -137,11 +131,15 @@ export class SocialShapeUtil extends BaseBoxShapeUtil<ISocialShape> {
 			}
 		}
 
+		const inputMap = getInputMap(this.editor, shape)
+
 		try {
-			const func = new Function('sum', 'average', 'VALUES', functionBody)
-			const result = func(sum, average, vals)
-			const resultIsFunction = typeof result === 'function'
-			if (resultIsFunction) {
+			const paramNames = ['sum', 'average', 'VALUES', ...Object.keys(inputMap)]
+			const paramValues = [sum, average, vals, ...Object.values(inputMap).map(s => s.value)]
+			const func = new Function(...paramNames, functionBody)
+			const result = func(...paramValues)
+
+			if (typeof result === 'function') {
 				this.updateProps({ ...shape, props: { ...shape.props, value: null } }, { syntaxError: true })
 				return
 			}
@@ -241,4 +239,32 @@ function ValueInterface({ type, value, values, onChange }: { type: ValueType; va
 		default:
 			return <div style={{ marginTop: 10, textAlign: 'center' }}>No Interface...</div>
 	}
+}
+
+function getInputMap(editor: Editor, shape: TLShape) {
+	const arrowBindings = editor.getBindingsInvolvingShape(
+		shape.id,
+		"arrow",
+	)
+	const arrows = arrowBindings
+		.map((binding) => editor.getShape(binding.fromId))
+
+	return arrows.reduce((acc, arrow) => {
+		const edge = getEdge(arrow, editor);
+		if (edge && edge.to === shape.id) {
+			const sourceShape = editor.getShape(edge.from);
+			if (sourceShape && edge.text) {
+				acc[edge.text] = { value: sourceShape.props.value || sourceShape.props.text || null, shapeId: sourceShape.id }
+			}
+		}
+		return acc;
+	}, {} as Record<string, { value: any, shapeId: TLShapeId }>);
+}
+
+function listenToShape(editor: Editor, shapeId: TLShapeId, callback: (prev: TLShape, next: TLShape) => void) {
+	return editor.sideEffects.registerAfterChangeHandler<'shape'>('shape', (prev, next) => {
+		if (next.id === shapeId) {
+			callback(prev, next)
+		}
+	})
 }

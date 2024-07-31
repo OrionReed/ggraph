@@ -1,7 +1,6 @@
 import {
 	BaseBoxShapeUtil,
 	HTMLContainer,
-	// TLArrowShape,
 	TLBaseShape,
 	TLGeoShape,
 	TLOnResizeHandler,
@@ -11,8 +10,6 @@ import { getEdge } from "./propagators/tlgraph"
 import { llm } from "./llm"
 import { isShapeOfType } from "./propagators/utils"
 import { ISocialShape } from "./SocialShapeUtil"
-// import TextInput from "react-autocomplete-input"
-// import "react-autocomplete-input/dist/bundle.css"
 
 type IPrompt = TLBaseShape<
 	"prompt",
