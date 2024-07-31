@@ -108,12 +108,12 @@ export class SocialShapeUtil extends BaseBoxShapeUtil<ISocialShape> {
 		// console.log("VALS", vals)
 
 		// Check for "sum" or "average" followed by whitespace or end of string
-		const invalidFunctionUsage = /\b(sum|average)(\s|$)/.test(shape.props.text)
+		// const invalidFunctionUsage = /\b(sum|average)(\s|$)/.test(shape.props.text)
 
-		if (invalidFunctionUsage) {
-			this.updateProps(shape, { syntaxError: true })
-			return
-		}
+		// if (invalidFunctionUsage) {
+		// 	this.updateProps(shape, { syntaxError: true })
+		// 	return
+		// }
 
 		const functionBody = `return ${shape.props.text.replace(valueType, 'VALUES')};`
 
@@ -140,6 +140,11 @@ export class SocialShapeUtil extends BaseBoxShapeUtil<ISocialShape> {
 		try {
 			const func = new Function('sum', 'average', 'VALUES', functionBody)
 			const result = func(sum, average, vals)
+			const resultIsFunction = typeof result === 'function'
+			if (resultIsFunction) {
+				this.updateProps({ ...shape, props: { ...shape.props, value: null } }, { syntaxError: true })
+				return
+			}
 			console.log("VALUE", result)
 			this.updateProps(shape, { value: result, syntaxError: false })
 		} catch (e) {
